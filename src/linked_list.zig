@@ -1,116 +1,107 @@
 const std = @import("std");
 
+pub fn Node(comptime T: type) type {
+    return struct { val: T, next: ?*Node(T), before: ?*Node(T) };
+}
+
 pub fn LinkedList(comptime T: type) type {
     return struct {
-        const Self = @This();
-        const Node = struct { val: T, next: ?*Node(T), before: ?*Node(T) };
+        allocator: std.mem.Allocator,
+        first: ?*Node(T) = null,
+        last: ?*Node(T) = null,
+        length: u64 = 0,
 
-        var lenght = 0;
-        var head = ?*Node;
-        var last = ?*Node;
-        var allocator: std.mem.Allocator = std.mem.Allocator{};
+        const Self = @This();
 
         pub fn new(alloc: std.mem.Allocator) LinkedList(T) {
-            return LinkedList(T){ .lenght = 0, .allocator = alloc };
+            return LinkedList(T){ .allocator = alloc };
         }
 
-        pub fn deinit(self: *Self) !void {
-            var current = self.head;
+        pub fn free(self: *Self) void {
+            var current = self.first;
             while (current != null) {
                 const t = current;
-                current = current.next;
-                try self.allocator.deinit(t);
+                current = current.?.next;
+                self.allocator.destroy(t.?);
             }
-            self.lenght = 0;
-            self.head = null;
+            self.length = 0;
+            self.first = null;
         }
 
         pub fn insert(self: *Self, v: T) !void {
-            const node = try self.allocator.create(Node);
+            const node = try self.allocator.create(Node(T));
             node.val = v;
-            node.next = self.head;
+            node.next = self.first;
             node.before = null;
-            self.head.?.last = node;
-            self.head = node;
-            self.lenght += 1;
+            if (self.first != null) {
+                self.first.?.before = node;
+            }
+            self.first = node;
+            self.length += 1;
             if (self.last == null) {
-                self.last = self.head;
+                self.last = self.first;
             }
-        }
-
-        pub fn pop(self: *Self) !T {
-            if (self.head == null) {
-                return error{ListEmpty};
-            }
-            const old = self.head;
-            self.head = old.next;
-            const val = old.val;
-            try self.allocator.deinit(old);
-            if (self.head == null) {
-                self.last = null;
-            }
-            return val;
         }
 
         pub fn traverse(self: *Self) void {
-            var current = self.head;
+            var current = self.first;
             while (current != null) : (current = current.?.next) {
-                std.log.info("{}", .{current.?.val});
+                std.log.info("{}", .{current.val});
             }
         }
     };
 }
 
 test "initializing builds an empty linked list with no nodes" {
-    const arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    const linkedList = LinkedList(u32).new(allocator);
+    const linkedList = &LinkedList(u32).new(allocator);
 
     try std.testing.expect(linkedList.length == 0);
-    try std.testing.expect(linkedList.head == null);
+    try std.testing.expect(linkedList.first == null);
 }
 
 test "inserting a value appends to the head of the linked list" {
-    const arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    const linkedList = LinkedList(u32).new(allocator);
+    var linkedList = LinkedList(u32).new(allocator);
 
-    linkedList.insert(69);
+    try linkedList.insert(69);
 
     try std.testing.expect(linkedList.length == 1);
-    try std.testing.expect(linkedList.head != null);
-    try std.testing.expect(linkedList.head.?.value != 69);
+    try std.testing.expect(linkedList.first != null);
+    try std.testing.expect(linkedList.first.?.val == 69);
 }
 
 test "verifying order in the linked list" {
-    const arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    const linkedList = LinkedList(u32).new(allocator);
+    var linkedList = LinkedList(u32).new(allocator);
 
     for (0..10) |i| {
-        linkedList.insert(i);
+        try linkedList.insert(@intCast(i));
     }
 
-    var i = 10;
-    var current = linkedList.head;
-    while (current != null) : (current = current.?.next) {
-        try std.testing.expect(current.val == i);
+    var i: i8 = 9;
+    var it = linkedList.first;
+    while (it != null) : (it = it.?.next) {
+        try std.testing.expect(it.?.val == i);
         i -= 1;
     }
 }
 
 test "deinit the linked list" {
-    const arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    const linkedList = LinkedList(u32).new(allocator);
+    var linkedList = LinkedList(u32).new(allocator);
 
-    linkedList.insert(69);
-    linkedList.deinit();
+    try linkedList.insert(69);
+    linkedList.free();
 
     try std.testing.expect(linkedList.length == 0);
-    try std.testing.expect(linkedList.head == null);
+    try std.testing.expect(linkedList.first == null);
 }
