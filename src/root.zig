@@ -1,6 +1,7 @@
 //! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
 const LinkedList = @import("linked_list.zig").LinkedList;
+const Queue = @import("queue.zig").Queue;
 
 pub fn bufferedPrint() !void {
     // Stdout is for the actual output of your application, for example if you
