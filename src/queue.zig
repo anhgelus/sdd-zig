@@ -24,13 +24,11 @@ pub fn Queue(comptime T: type) type {
         }
 
         pub fn dequeue(self: *Self) !T {
-            if (self.empty()) {
-                return EmptyQueue;
-            }
-            const t = self.list.last;
+            const t = self.list.last orelse return EmptyQueue;
             self.list.last = t.before;
             const val = t.val;
-            try self.allocator.deinit(val);
+            self.allocator.destroy(t);
+            self.list.length -= 1;
             return val;
         }
 
@@ -71,4 +69,21 @@ test "inserting a value in the queue" {
     try std.testing.expect(queue.list.first.?.val == 69);
     try std.testing.expect(!queue.empty());
     try std.testing.expect(try queue.peek() == 69);
+}
+
+test "verifying order in the queue" {
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
+    var queue = try Queue(u32).new(allocator);
+
+    for (0..10) |i| {
+        try queue.enqueue(@intCast(i));
+    }
+
+    var i: u32 = 0;
+    while (!queue.empty()) {
+        try std.testing.expect(try queue.dequeue() == i);
+        i += 1;
+    }
 }
