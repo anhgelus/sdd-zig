@@ -2,6 +2,7 @@
 const std = @import("std");
 const LinkedList = @import("linked_list.zig").LinkedList;
 const Queue = @import("queue.zig").Queue;
+const Stack = @import("stack.zig").Stack;
 
 pub fn bufferedPrint() !void {
     // Stdout is for the actual output of your application, for example if you
