@@ -1,8 +1,14 @@
 //! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
-const LinkedList = @import("linked_list.zig").LinkedList;
-const Queue = @import("queue.zig").Queue;
-const Stack = @import("stack.zig").Stack;
+const hash_table = @import("hash_table.zig");
+
+pub const LinkedList = @import("linked_list.zig").LinkedList;
+pub const Queue = @import("queue.zig").Queue;
+pub const Stack = @import("stack.zig").Stack;
+pub const Hash = struct {
+    pub const uint = hash_table.uintHash;
+    pub const Table = hash_table.HashTable;
+};
 
 pub fn bufferedPrint() !void {
     // Stdout is for the actual output of your application, for example if you

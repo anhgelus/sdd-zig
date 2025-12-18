@@ -82,8 +82,7 @@ test "verifying order in the queue" {
     }
 
     var i: u32 = 0;
-    while (!queue.empty()) {
+    while (!queue.empty()) : (i += 1) {
         try std.testing.expect(try queue.dequeue() == i);
-        i += 1;
     }
 }

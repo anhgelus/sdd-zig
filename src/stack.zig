@@ -82,8 +82,7 @@ test "verifying order in the stack" {
     }
 
     var i: i8 = 9;
-    while (!stack.empty()) {
+    while (!stack.empty()) : (i -= 1) {
         try std.testing.expect(try stack.pop() == i);
-        i -= 1;
     }
 }

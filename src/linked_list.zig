@@ -19,10 +19,10 @@ pub fn LinkedList(comptime T: type) type {
 
         pub fn free(self: *Self) void {
             var current = self.first;
-            while (current != null) {
-                const t = current;
-                current = current.?.next;
-                self.allocator.destroy(t.?);
+            while (current) |it| {
+                const t = it;
+                current = it.next;
+                self.allocator.destroy(t);
             }
             self.length = 0;
             self.first = null;
@@ -33,8 +33,8 @@ pub fn LinkedList(comptime T: type) type {
             node.val = v;
             node.next = self.first;
             node.before = null;
-            if (self.first != null) {
-                self.first.?.before = node;
+            if (self.first) |it| {
+                it.before = node;
             }
             self.first = node;
             self.length += 1;
@@ -45,8 +45,8 @@ pub fn LinkedList(comptime T: type) type {
 
         pub fn traverse(self: *Self) void {
             var current = self.first;
-            while (current != null) : (current = current.?.next) {
-                std.log.info("{}", .{current.val});
+            while (current) |it| : (current = it.next) {
+                std.log.info("{}", .{it.val});
             }
         }
     };
@@ -86,9 +86,9 @@ test "verifying order in the linked list" {
     }
 
     var i: i8 = 9;
-    var it = linkedList.first;
-    while (it != null) : (it = it.?.next) {
-        try std.testing.expect(it.?.val == i);
+    var node = linkedList.first;
+    while (node) |it| : (node = it.next) {
+        try std.testing.expect(it.val == i);
         i -= 1;
     }
 }
