@@ -104,7 +104,7 @@ pub fn uintHash(x: u64, n: usize) usize {
     return @as(usize, @intFromFloat(math.floor(@as(f64, @floatFromInt(n)) * (xA - math.floor(xA)))));
 }
 
-test "initializing builds an empty hash table" {
+test "initializing an empty hash table" {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();

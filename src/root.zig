@@ -12,6 +12,7 @@ pub const Hash = struct {
     pub const Function = hash_table.HashFunction;
 };
 pub const BloomFilter = @import("bloom_filter.zig").BloomFilter;
+pub const PriorityQueue = @import("priority_queue.zig").PriorityQueue;
 pub const BinaryTree = struct {
     pub const Basic = binary_tree.BinaryTree;
     pub const Node = binary_tree.Node;
