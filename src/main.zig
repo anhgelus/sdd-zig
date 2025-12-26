@@ -2,6 +2,7 @@ const std = @import("std");
 const sdd_zig = @import("sdd_zig");
 
 pub fn main() !void {
+    std.log.debug("hey", .{});
     // Prints to stderr, ignoring potential errors.
     std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
     try sdd_zig.bufferedPrint();

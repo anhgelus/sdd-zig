@@ -46,8 +46,10 @@ pub fn LinkedList(comptime T: type) type {
         pub fn traverse(self: *Self) void {
             var current = self.first;
             while (current) |it| : (current = it.next) {
-                std.log.info("{}", .{it.val});
+                std.debug.print("{}", .{it.val});
+                if (it.next != null) std.debug.print(", ", .{});
             }
+            std.debug.print("\n", .{});
         }
     };
 }
