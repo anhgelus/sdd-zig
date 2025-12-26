@@ -8,7 +8,9 @@ pub const Stack = @import("stack.zig").Stack;
 pub const Hash = struct {
     pub const uint = hash_table.uintHash;
     pub const Table = hash_table.HashTable;
+    pub const Function = hash_table.HashFunction;
 };
+pub const BloomFilter = @import("bloom_filter.zig").BloomFilter;
 
 pub fn bufferedPrint() !void {
     // Stdout is for the actual output of your application, for example if you

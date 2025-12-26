@@ -8,11 +8,15 @@ pub fn HashNode(comptime K: type, comptime V: type) type {
     };
 }
 
+pub fn HashFunction(comptime K: type) type {
+    return *const fn (K, usize) usize;
+}
+
 pub fn HashTable(comptime K: type, comptime V: type) type {
     return struct {
         allocator: std.mem.Allocator,
         list: []*linkedList.LinkedList(*HashNode(K, V)),
-        hash: *const fn (K, usize) usize,
+        hash: HashFunction(K),
         length: usize = 0,
 
         const Self = @This();
@@ -23,7 +27,7 @@ pub fn HashTable(comptime K: type, comptime V: type) type {
             for (0..n) |i| {
                 const l = try alloc.create(linkedList.LinkedList(*Node));
                 l.* = linkedList.LinkedList(*Node).new(alloc);
-                list[i] = l; 
+                list[i] = l;
             }
             return HashTable(K, V){ .allocator = alloc, .list = list, .hash = hashFn };
         }
@@ -83,10 +87,10 @@ pub fn HashTable(comptime K: type, comptime V: type) type {
         }
 
         pub fn traverse(self: *Self) void {
-            std.debug.print("len: {}\n", .{ self.length });
+            std.debug.print("len: {}\n", .{self.length});
             for (0..self.list.len) |i| {
                 var list = self.list[i];
-                std.debug.print("{}, len: {}\n", .{i, list.length});
+                std.debug.print("{}, len: {}\n", .{ i, list.length });
                 if (list.length != 0) list.traverse();
             }
         }
