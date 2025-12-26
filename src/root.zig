@@ -1,6 +1,7 @@
 //! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
 const hash_table = @import("hash_table.zig");
+const binary_tree = @import("binary_tree.zig");
 
 pub const LinkedList = @import("linked_list.zig").LinkedList;
 pub const Queue = @import("queue.zig").Queue;
@@ -11,6 +12,10 @@ pub const Hash = struct {
     pub const Function = hash_table.HashFunction;
 };
 pub const BloomFilter = @import("bloom_filter.zig").BloomFilter;
+pub const BinaryTree = struct {
+    pub const Basic = binary_tree.BinaryTree;
+    pub const Node = binary_tree.Node;
+};
 
 pub fn bufferedPrint() !void {
     // Stdout is for the actual output of your application, for example if you
