@@ -1,7 +1,8 @@
 //! By convention, root.zig is the root source file when making a library.
 const std = @import("std");
 const hash_table = @import("hash_table.zig");
-const binary_tree = @import("binary_tree.zig");
+const btree = @import("binary_tree.zig");
+const bst = @import("binary_search_tree.zig");
 
 pub const LinkedList = @import("linked_list.zig").LinkedList;
 pub const Queue = @import("queue.zig").Queue;
@@ -14,8 +15,11 @@ pub const Hash = struct {
 pub const BloomFilter = @import("bloom_filter.zig").BloomFilter;
 pub const PriorityQueue = @import("priority_queue.zig").PriorityQueue;
 pub const BinaryTree = struct {
-    pub const Basic = binary_tree.BinaryTree;
-    pub const Node = binary_tree.Node;
+    pub const Basic = btree.BinaryTree;
+    pub const Node = btree.Node;
+    pub const Search = bst.BST;
+    pub const searchCompInt = bst.compareInt;
+    pub const searchCompUint = bst.compareUint;
 };
 
 pub fn bufferedPrint() !void {

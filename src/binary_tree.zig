@@ -9,31 +9,31 @@ pub fn Node(comptime V: type) type {
 
         const Self = @This();
 
-        pub fn new(val: V, above: ?*Self, left: ?*Self, right: ?*Self) Self {
+        pub fn new(val: V, above: ?*Self) Self {
             return Node(V){
                 .value = val,
                 .above = above,
-                .left = left,
-                .right = right,
+                .left = null,
+                .right = null,
             };
         }
 
         pub fn prefix(self: *Self) void {
-            std.debug.print("{}", self.value);
+            std.debug.print("{}", .{self.value});
             if (self.left) |it| it.prefix();
             if (self.right) |it| it.prefix();
         }
 
         pub fn infix(self: *Self) void {
             if (self.left) |it| it.infix();
-            std.debug.print("{}", self.value);
+            std.debug.print("{}", .{self.value});
             if (self.right) |it| it.infix();
         }
 
         pub fn suffix(self: *Self) void {
             if (self.left) |it| it.suffix();
             if (self.right) |it| it.suffix();
-            std.debug.print("{}", self.value);
+            std.debug.print("{}", .{self.value});
         }
 
         pub fn size(self: *Self) usize {
@@ -46,9 +46,9 @@ pub fn Node(comptime V: type) type {
 
         pub fn height(self: *Self) usize {
             var left: usize = 0;
-            if (self.left) |it| left = it.size();
+            if (self.left) |it| left = it.height();
             var right: usize = 0;
-            if (self.right) |it| right = it.size();
+            if (self.right) |it| right = it.height();
             return 1 + @max(left, right);
         }
 
@@ -73,7 +73,7 @@ pub fn BinaryTree(comptime V: type) type {
 
         pub fn new(alloc: std.mem.Allocator, val: V) !Self {
             const node = try alloc.create(Node(V));
-            node.* = Node(V).new(val, null, null, null);
+            node.* = Node(V).new(val, null);
             return BinaryTree(V){ .allocator = alloc, .root = node };
         }
 
@@ -100,6 +100,12 @@ pub fn BinaryTree(comptime V: type) type {
         pub fn get(self: *Self, val: V) ?*Node(V) {
             return self.root.get(val);
         }
+
+        pub fn as_btree(self: *Self, node: *Node(V)) Self {
+            const cp = self.*;
+            cp.root = node;
+            return cp;
+        }
     };
 }
 
@@ -120,11 +126,11 @@ test "inserting values in the binary tree" {
     var tree = try BinaryTree(u64).new(allocator, 0);
 
     var node = try allocator.create(Node(u64));
-    node.* = Node(u64).new(1, tree.root, null, null);
+    node.* = Node(u64).new(1, tree.root);
     tree.root.left = node;
 
     node = try allocator.create(Node(u64));
-    node.* = Node(u64).new(2, tree.root, null, null);
+    node.* = Node(u64).new(2, tree.root);
     tree.root.right = node;
 
     try std.testing.expect(tree.size() == 3);
@@ -133,7 +139,7 @@ test "inserting values in the binary tree" {
     var right = node;
 
     node = try allocator.create(Node(u64));
-    node.* = Node(u64).new(3, right, null, null);
+    node.* = Node(u64).new(3, right);
     right.left = node;
 
     try std.testing.expect(tree.size() == 4);
