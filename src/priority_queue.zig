@@ -31,7 +31,7 @@ pub fn PriorityQueue(comptime V: type) type {
             if (self.length >= self.list.len) {
                 return error.QueueIsFull;
             }
-            self.list[self.length+1] = node;
+            self.list[self.length + 1] = node;
             var id = self.length;
             while (self.hasFather(id)) : (id = fatherID(id)) {
                 const fID = fatherID(id);
@@ -44,7 +44,7 @@ pub fn PriorityQueue(comptime V: type) type {
             }
             self.length += 1;
         }
-        
+
         pub fn pop(self: *Self) !V {
             if (self.length == 0) return error.EmptyQueue;
             const min = self.list[1];
@@ -93,11 +93,11 @@ pub fn PriorityQueue(comptime V: type) type {
 
         pub fn traverse(self: *Self) void {
             var i: usize = 0;
-            while (2*i <= self.length) : (i += 1) {
+            while (2 * i <= self.length) : (i += 1) {
                 const min = std.math.pow(usize, 2, i);
-                const max = 2*min; 
+                const max = 2 * min;
                 for (min..max) |j| {
-                    if (j < self.length) std.debug.print("{} ", .{self.list[j+1].value});
+                    if (j < self.length) std.debug.print("{} ", .{self.list[j + 1].value});
                 }
                 std.debug.print("\n", .{});
             }
