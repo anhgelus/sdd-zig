@@ -6,6 +6,7 @@ pub fn Node(comptime V: type) type {
         left: ?*Node(V),
         right: ?*Node(V),
         above: ?*Node(V),
+        height: u64,
 
         const Self = @This();
 
@@ -15,6 +16,7 @@ pub fn Node(comptime V: type) type {
                 .above = above,
                 .left = null,
                 .right = null,
+                .height = 1,
             };
         }
 
@@ -44,12 +46,25 @@ pub fn Node(comptime V: type) type {
             return 1 + left + right;
         }
 
-        pub fn height(self: *Self) usize {
+        pub fn update_height(self: *Self) void {
             var left: usize = 0;
-            if (self.left) |it| left = it.height();
+            if (self.left) |it| left = it.height;
             var right: usize = 0;
-            if (self.right) |it| right = it.height();
-            return 1 + @max(left, right);
+            if (self.right) |it| right = it.height;
+            self.height = 1 + @max(left, right);
+        }
+
+        pub fn update_height_parent(self: *Self) void {
+            var current = self.above;
+            while (current) |it| : (current = it.above) {
+                it.update_height();
+            }
+        }
+
+        pub fn update_height_children(self: *Self) void {
+            if (self.left) |it| it.update_height_children();
+            if (self.right) |it| it.update_height_children();
+            self.update_height();
         }
 
         pub fn get(self: *Self, val: V) ?*Node(V) {
@@ -94,7 +109,11 @@ pub fn BinaryTree(comptime V: type) type {
         }
 
         pub fn height(self: *Self) usize {
-            return self.root.height();
+            return self.root.height;
+        }
+
+        pub fn update_height(self: *Self) void {
+            self.root.update_height(true);
         }
 
         pub fn get(self: *Self, val: V) ?*Node(V) {
@@ -128,10 +147,12 @@ test "inserting values in the binary tree" {
     var node = try allocator.create(Node(u64));
     node.* = Node(u64).new(1, tree.root);
     tree.root.left = node;
+    node.update_height_parent();
 
     node = try allocator.create(Node(u64));
     node.* = Node(u64).new(2, tree.root);
     tree.root.right = node;
+    node.update_height_parent();
 
     try std.testing.expect(tree.size() == 3);
     try std.testing.expect(tree.height() == 2);
@@ -141,6 +162,7 @@ test "inserting values in the binary tree" {
     node = try allocator.create(Node(u64));
     node.* = Node(u64).new(3, right);
     right.left = node;
+    node.update_height_parent();
 
     try std.testing.expect(tree.size() == 4);
     try std.testing.expect(tree.height() == 3);

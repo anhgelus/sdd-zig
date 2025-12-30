@@ -69,11 +69,13 @@ pub fn BST(comptime V: type) type {
                 if (current == null) above = it;
             }
             node.* = Node(V).new(val, above);
+            node.update_height_parent();
             return node;
         }
 
         pub fn delete(self: *Self, val: V) void {
             self.tree.root = delete_rec(self, self.tree.root, val).?;
+            self.tree.root.update_height_children();
         }
 
         fn delete_rec(self: *Self, node: ?*Node(V), val: V) ?*Node(V) {
