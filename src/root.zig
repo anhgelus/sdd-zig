@@ -8,7 +8,7 @@ pub const LinkedList = @import("linked_list.zig").LinkedList;
 pub const Queue = @import("queue.zig").Queue;
 pub const Stack = @import("stack.zig").Stack;
 pub const Hash = struct {
-    pub const uint = hash_table.uintHash;
+    pub const uint = hash_table.uint_hash;
     pub const Table = hash_table.HashTable;
     pub const Function = hash_table.HashFunction;
 };
@@ -18,8 +18,9 @@ pub const BinaryTree = struct {
     pub const Basic = btree.BinaryTree;
     pub const Node = btree.Node;
     pub const Search = bst.BST;
-    pub const searchCompInt = bst.compareInt;
-    pub const searchCompUint = bst.compareUint;
+    pub const order_int = bst.order_int;
+    pub const order_uint = bst.order_uint;
+    pub const AVL = @import("avl.zig").AVL;
 };
 
 pub fn bufferedPrint() !void {

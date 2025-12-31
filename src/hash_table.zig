@@ -97,7 +97,7 @@ pub fn HashTable(comptime K: type, comptime V: type) type {
     };
 }
 
-pub fn uintHash(x: u64, n: usize) usize {
+pub fn uint_hash(x: u64, n: usize) usize {
     const math = std.math;
     const A = (math.sqrt(5.0) - 1.0) / @as(f64, @floatFromInt(2));
     const xA = @as(f64, @floatFromInt(x)) * A;
@@ -108,7 +108,7 @@ test "initializing an empty hash table" {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    const map = try HashTable(u64, bool).new(allocator, 5, uintHash);
+    const map = try HashTable(u64, bool).new(allocator, 5, uint_hash);
 
     try std.testing.expect(map.length == 0);
 }
@@ -117,7 +117,7 @@ test "inserting a value in the hash table" {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    var map = try HashTable(u64, bool).new(allocator, 5, uintHash);
+    var map = try HashTable(u64, bool).new(allocator, 5, uint_hash);
 
     try map.add(10, true);
 
@@ -130,7 +130,7 @@ test "verifying inputs in hash table" {
     var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arena.deinit();
     const allocator = arena.allocator();
-    var map = try HashTable(u64, bool).new(allocator, 5, uintHash); // using 5 for 9 values to test collisions
+    var map = try HashTable(u64, bool).new(allocator, 5, uint_hash); // using 5 for 9 values to test collisions
 
     for (0..10) |i| {
         try map.add(i, i % 2 == 0);
