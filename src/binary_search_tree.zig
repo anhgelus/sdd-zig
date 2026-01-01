@@ -78,35 +78,32 @@ pub fn BST(comptime V: type) type {
             return node;
         }
 
-        pub fn delete(self: *Self, val: V) void {
-            self.tree.root = delete_rec(self, self.tree.root, val).?;
+        pub fn delete(self: *Self, val: V) !void {
+            self.tree.root = (try delete_rec(self, self.tree.root, val)).?;
         }
 
-        fn delete_rec(self: *Self, node: ?*Node(V), val: V) ?*Node(V) {
-            if (node == null) return null;
-            const comp = self.order(node.?.value, val);
-            var res = node;
-            switch (comp) {
+        fn delete_rec(self: *Self, pnode: ?*Node(V), val: V) !?*Node(V) {
+            const node = pnode orelse return error.NotFound;
+            var res: ?*Node(V) = node;
+            switch (self.order(node.value, val)) {
                 Order.gt => {
-                    node.?.left = self.delete_rec(node.?.left, val);
+                    node.left = try self.delete_rec(node.left, val);
                 },
                 Order.lt => {
-                    node.?.right = self.delete_rec(node.?.right, val);
+                    node.right = try self.delete_rec(node.right, val);
                 },
                 Order.eq => {
-                    if (node.?.right == null) {
-                        res = node.?.left;
-                        self.allocator.destroy(node.?);
-                    } else if (node.?.left == null) {
-                        res = node.?.right;
-                        self.allocator.destroy(node.?);
+                    if (node.right == null) {
+                        res = node.left;
+                        self.allocator.destroy(node);
+                    } else if (node.left == null) {
+                        res = node.right;
+                        self.allocator.destroy(node);
                     } else {
                         var current = node;
-                        while (current) |it| : (current = it.left) {
-                            if (it.left == null) break;
-                        }
-                        res.?.value = current.?.value;
-                        self.allocator.destroy(current.?);
+                        while (current.left) |it| : (current = it) {}
+                        res.?.value = current.value;
+                        self.allocator.destroy(current);
                     }
                 },
             }
@@ -177,7 +174,8 @@ test "updating values in binary trees" {
     try expect(tree.binary_tree().size() == 7);
     try expect(tree.binary_tree().height() == 4);
 
-    tree.delete(7);
+    try tree.delete(7);
+    try expect(tree.delete(100) == error.NotFound);
 
     try expect(is_bst(u64, order_uint, tree.binary_tree()));
     try expect(tree.binary_tree().size() == 6);
